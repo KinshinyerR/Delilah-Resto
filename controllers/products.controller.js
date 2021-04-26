@@ -21,7 +21,7 @@ function getById(req, res) {
     .catch((error) => res.status(400).json(error));
 }
 
-function create(req, res) {   
+function create(req, res) {
   const product = new Product(req.body);
   product
     .save()
@@ -42,8 +42,15 @@ function update(req, res) {
 }
 
 function remove(req, res) {
-  console.log(req.params.id);
-  res.send(`Producto eliminado con id: ${req.params.id}`);
+  Product.findById(req.params.id)
+    .then((product) => {
+      return product.remove(req.params.id);
+    })
+    .then((productDeleted) => {
+      res.status(200);
+      res.send(`${productDeleted} Producto eliminado con exito`);
+    })
+    .catch((error) => res.status(400).json(error));
 }
 
 module.exports = router;
