@@ -1,4 +1,5 @@
 const express = require("express");
+const User = require("../models/user.model");
 
 const router = express.Router();
 
@@ -10,31 +11,69 @@ router.put("/update/:id", update);
 router.delete("/delete/:id", remove);
 
 function getAll(req, res) {
-  res.send("Todos los usuario");
+  User.find()
+    .then((users) => res.send(users))
+    .catch((error) => res.status(400).json(error));
 }
 
 function getById(req, res) {
-  console.log(req.params.id);
-  res.send(`usuario: ${req.params.id}`);
+  User.findById(req.params.id)
+    .then((user) => res.send(user))
+    .catch((error) => res.status(400).json(error));
 }
 
 function register(req, res) {
-  res.send(`usuario creado`);
+  const user = new User(req.body);
+  user
+    .save()
+    .then(() => {
+      res.send(`Usuario registado`);
+    })
+    .catch((error) => res.status(400).json(error));
 }
 
 function login(req, res) {
-    const {user, password} = req.body;
-    res.send(`usuario logeado : ${user}`)
+  const { user, email, password } = req.body;
+  User.findOne({
+    $and: [
+      {
+        $or: [{ user: user }, { email: email }],
+      },
+      {
+        password: password,
+      },
+    ],
+  })
+    .then((user) => {
+      if (user) {
+        res.send(`usuario logeado : ${user}`);
+      } else {
+        res.send(`usuario no encontrado`);
+      }
+    })
+    .catch((error) => res.status(400).json(error));
 }
 
 function update(req, res) {
-  console.log(req.params.id);
-  res.send(`usuario actualizado: ${req.params.id}`);
+  User.findById(req.params.id)
+    .then((user) => {
+      Object.assign(user, req.body);
+      return user.save();
+    })
+    .then((userUpdated) => res.send(userUpdated))
+    .catch((error) => res.status(400).json(error));
 }
 
 function remove(req, res) {
-  console.log(req.params.id);
-  res.send(`usuario eliminado con id: ${req.params.id}`);
+  User.findById(req.params.id)
+    .then((user) => {
+      return user.remove(req.params.id);
+    })
+    .then((userDeleted) => {
+      res.status(200);
+      res.send(`${userDeleted} Usuario eliminado con exito`);
+    })
+    .catch((error) => res.status(400).json(error));
 }
 
 module.exports = router;
