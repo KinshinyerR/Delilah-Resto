@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const productsCrontoller = require("./controllers/products.controller");
 const ordersCrontoller = require("./controllers/orders.controller");
 const usersCrontoller = require("./controllers/users.controller");
+const DBpassword = "Q1w2e3r4t5";
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
@@ -14,7 +15,7 @@ app.use("/users", usersCrontoller);
 
 mongoose
   .connect(
-    "mongodb+srv://dbadmin:Q1w2e3r4t5@cluster0.wtsge.mongodb.net/DelilahResto?retryWrites=true&w=majority",
+    `mongodb+srv://dbadmin:${DBpassword}@cluster0.wtsge.mongodb.net/DelilahResto?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {
