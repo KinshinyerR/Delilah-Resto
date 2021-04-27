@@ -14,7 +14,7 @@ app.use("/users", usersCrontoller);
 
 mongoose
   .connect(
-    "mongodb+srv://dbadmin:Q1w2e3r4t5@cluster0.wtsge.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+    "mongodb+srv://dbadmin:Q1w2e3r4t5@cluster0.wtsge.mongodb.net/DelilahResto?retryWrites=true&w=majority",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {
