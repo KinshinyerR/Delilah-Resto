@@ -23,11 +23,17 @@ function getById(req, res) {
 }
 
 function register(req, res) {
-  const user = new User(req.body);
-  user
-    .save()
-    .then(() => {
-      res.send(`Usuario registado`);
+  const { email } = req.body;
+  User.findOne({ email: email })
+    .then((registeredUser) => {
+      if (registeredUser) {
+        res.send(`Error: El correo ya fue registrado`);
+      } else {
+        const user = new User(req.body);
+        user.save().then(() => {
+          res.send(`Usuario registado con exito`);
+        });
+      }
     })
     .catch((error) => res.status(400).json(error));
 }
@@ -48,7 +54,7 @@ function login(req, res) {
       if (user) {
         res.send(`usuario logeado : ${user}`);
       } else {
-        res.send(`usuario no encontrado`);
+        res.send(`Usuario no encontrado`);
       }
     })
     .catch((error) => res.status(400).json(error));
