@@ -1,4 +1,5 @@
 const express = require("express");
+const order = require("../models/order.model");
 
 const router = express.Router();
 
@@ -9,7 +10,10 @@ router.put("/update/:id", update);
 router.delete("/delete/:id", remove);
 
 function getAll(req, res) {
-  res.send("Todos los Ordenes");
+  order.find()
+  .then((orders) => res.send(orders))
+  .catch((error) => res.status(400).json(error));
+  // res.send("Todos los Ordenes");
 }
 function getById(req, res) {
   console.log(req.params.id);

@@ -23,11 +23,20 @@ function getById(req, res) {
 }
 
 function register(req, res) {
-  const { email } = req.body;
-  User.findOne({ email: email })
+  const { user, email } = req.body;
+  User.findOne({
+    $or: [
+      {
+        user: user,
+      },
+      {
+        email: email,
+      },
+    ],
+  })
     .then((registeredUser) => {
       if (registeredUser) {
-        res.send(`Error: El correo ya fue registrado`);
+        res.send(`Error: El usuario ya se encuentra registrado`);
       } else {
         const user = new User(req.body);
         user.save().then(() => {
@@ -43,7 +52,14 @@ function login(req, res) {
   User.findOne({
     $and: [
       {
-        $or: [{ user: user }, { email: email }],
+        $or: [
+          {
+            user: user,
+          },
+          {
+            email: email,
+          },
+        ],
       },
       {
         password: password,
