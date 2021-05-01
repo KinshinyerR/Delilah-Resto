@@ -25,8 +25,8 @@ function create(req, res) {
   const product = new Product(req.body);
   product
     .save()
-    .then(() => {
-      res.send(`Producto creado`);
+    .then((response) => {
+      res.json(response);
     })
     .catch((error) => res.status(400).json(error));
 }
@@ -48,7 +48,7 @@ function remove(req, res) {
     })
     .then((productDeleted) => {
       res.status(200);
-      res.send(`${productDeleted} Producto eliminado con exito`);
+      res.json(productDeleted);
     })
     .catch((error) => res.status(400).json(error));
 }
