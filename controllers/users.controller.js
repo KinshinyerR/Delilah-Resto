@@ -1,19 +1,18 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { body, validationResult, param, oneOf } = require("express-validator");
+const mongoose = require("mongoose");
 
 const User = require("../models/user.model");
 const auth = require("../middleware/auth");
 const verifyRole = require("../middleware/role");
+const validate = require("../middleware/validate");
 
 const router = express.Router();
 
-router.get("/all", auth, verifyRole(['admin']), getAll);
-router.get("/getbyid/:id", getById);
-router.post("/register", register);
-router.post("/login", login);
-router.put("/update/:id", auth, update);
-router.delete("/delete/:id", auth, remove);
+/*******************************GET ALL USERS************************************/
+router.get("/all", auth, verifyRole(["admin"]), getAll);
 
 function getAll(req, res) {
   User.find()
@@ -21,11 +20,48 @@ function getAll(req, res) {
     .catch((error) => res.status(400).json(error));
 }
 
-function getById(req, res) {
-  User.findById(req.params.id)
-    .then((user) => res.send(user))
-    .catch((error) => res.status(400).json(error));
-}
+/*******************************GET BY ID USER***********************************/
+router.get(
+  "/getbyid/:id",
+  validate([
+    param("id")
+      .custom((value) => {
+        const respuesta = mongoose.isValidObjectId(value);
+        if (!respuesta) {
+          throw new Error("Id invalido");
+        }
+        return true;
+      })
+      .exists()
+      .withMessage("Id invalido"),
+  ]),
+  auth,
+  verifyRole(["admin"]),
+  (req, res) => {
+    User.findById(req.params.id)
+      .then((user) => res.send(user))
+      .catch((error) => res.status(400).json({ error }));
+  }
+);
+
+/*******************************POST REGISTER USER***********************************/
+router.post(
+  "/register",
+  validate([
+    body("user").exists().isString().trim().withMessage("Usuario invalido"),
+    body("name").exists().isString().trim().withMessage("Name invalido"),
+    body("surname").exists().isString().trim().withMessage("Surname invalido"),
+    body("password")
+      .exists()
+      .isLength({ min: 5 })
+      .trim()
+      .withMessage("Password invalido"),
+    body("phone").exists().isNumeric().trim().withMessage("phone invalido"),
+    body("address").exists().isString().trim().withMessage("address invalido"),
+    body("role").optional().isString().trim().withMessage("role invalido"),
+  ]),
+  register
+);
 
 async function register(req, res) {
   const { user, email } = req.body;
@@ -46,6 +82,24 @@ async function register(req, res) {
   }
 }
 
+/*******************************POST LOGIN USER***********************************/
+router.post(
+  "/login",
+  validate([
+    oneOf([
+      [
+        body("user").exists().isString().trim().withMessage("Usuario invalido"),
+        body("password").exists(),
+      ],
+      [
+        body("email").exists().isEmail().trim().withMessage("Email invalido"),
+        body("password").exists(),
+      ],
+    ]),
+  ]),
+  login
+);
+
 function login(req, res) {
   const { user, email, password } = req.body;
   User.findOne({
@@ -63,15 +117,21 @@ function login(req, res) {
     .catch((error) => res.status(400).json(error.message));
 }
 
+/*******************************PUT(UPDATE) BY ID USER********************************/
+router.put("/update/:id", auth, verifyRole(["admin"]), update);
+
 function update(req, res) {
   User.findById(req.params.id)
-    .then((user) => {
+    .then((user) => {                  /********HACER ESTO**********/
       Object.assign(user, req.body);
       return user.save();
     })
     .then((userUpdated) => res.send(userUpdated))
     .catch((error) => res.status(400).json(error));
 }
+
+/*******************************DELETE BY ID USER***********************************/
+router.delete("/delete/:id", auth, verifyRole(["admin"]), remove);
 
 function remove(req, res) {
   User.findById(req.params.id)

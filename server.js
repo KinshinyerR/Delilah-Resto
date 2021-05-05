@@ -1,12 +1,14 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const morgan = require("morgan");
 
 const productsCrontoller = require("./controllers/products.controller");
 const ordersCrontoller = require("./controllers/orders.controller");
 const usersCrontoller = require("./controllers/users.controller");
 
 const app = express();
+app.use(morgan('tiny'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
