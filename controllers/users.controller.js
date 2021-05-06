@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { body, validationResult, param, oneOf } = require("express-validator");
+const { body, param, oneOf } = require("express-validator");
 const mongoose = require("mongoose");
 
 const User = require("../models/user.model");
@@ -118,11 +118,28 @@ function login(req, res) {
 }
 
 /*******************************PUT(UPDATE) BY ID USER********************************/
-router.put("/update/:id", auth, verifyRole(["admin"]), update);
+router.put(
+  "/update/:id",
+  validate([
+    body("user").isString().trim().withMessage("Usuario invalido"),
+    body("name").isString().trim().withMessage("Name invalido"),
+    body("surname").isString().trim().withMessage("Surname invalido"),
+    body("password")
+      .isLength({ min: 5 })
+      .trim()
+      .withMessage("Password invalido"),
+    body("phone").isNumeric().trim().withMessage("phone invalido"),
+    body("address").isString().trim().withMessage("address invalido"),
+    body("role").optional().isString().trim().withMessage("role invalido"),
+  ]),
+  auth,
+  verifyRole(["admin"]),
+  update
+);
 
 function update(req, res) {
   User.findById(req.params.id)
-    .then((user) => {                  /********HACER ESTO**********/
+    .then((user) => {
       Object.assign(user, req.body);
       return user.save();
     })
