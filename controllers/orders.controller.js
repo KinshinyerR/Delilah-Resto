@@ -14,7 +14,7 @@ router.get("/all", getAll);
 router.get("/getbyid/:id", getById);
 router.post("/create", create);
 router.put("/update/:id", update);
-// router.put('/updateProduct/:id', updateProduct);
+router.put("/updateProduct/:id", updateProduct);
 router.delete("/delete/:id", remove);
 
 /*******************************GET ALL ORDERS************************************/
@@ -70,12 +70,47 @@ async function create(req, res) {
 function update(req, res) {
   Order.findById(req.params.id)
     .then((order) => {
-      console.log(order.products);
       Object.assign(order, req.body);
       return order.save();
     })
     .then((orderUpdated) => res.send(orderUpdated))
     .catch((error) => res.status(400).json(error));
+}
+
+/*******************************UPDATE ORDERS PRODUTS************************************/
+async function updateProduct(req, res) {
+  const { productId, quantity } = req.body;
+
+  try {
+    const orderDB = await Order.findById(req.params.id);
+    if (!orderDB) {
+      res.status(400).send(`Orden no encontrada`);
+    }
+
+    let productTotal = 0;
+    let newProductTotal = 0;
+    let newTotal = 0;
+
+    for (let i = 0; i < orderDB.products.length; i++) {                        /** MANEJO DEL ERROR **/
+      const productDB = (await orderDB.products[i].productId) == productId;
+      if (productDB) {
+        productTotal =
+          orderDB.products[i].productPrice * orderDB.products[i].quantity;
+
+        orderDB.products[i].quantity = quantity;
+
+        newProductTotal =
+          orderDB.products[i].productPrice * orderDB.products[i].quantity;
+      }
+    }
+    newTotal = orderDB.paymentValue - productTotal + newProductTotal;
+    orderDB.paymentValue = newTotal;
+
+    await orderDB.save();
+    res.json(orderDB);
+  } catch (error) {
+    res.status(400).json(error.message);
+  }
 }
 
 /*******************************DELETE ORDERS************************************/
