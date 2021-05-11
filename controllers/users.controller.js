@@ -51,9 +51,10 @@ router.post(
     body("user").exists().isString().trim().withMessage("Usuario invalido"),
     body("name").exists().isString().trim().withMessage("Name invalido"),
     body("surname").exists().isString().trim().withMessage("Surname invalido"),
+    body("email").exists().isEmail().trim().withMessage("Emal invalido"),
     body("password")
       .exists()
-      .isLength({ min: 5 })
+      .isLength({ min: 6 })
       .trim()
       .withMessage("Password invalido"),
     body("phone").exists().isNumeric().trim().withMessage("phone invalido"),
@@ -121,15 +122,16 @@ function login(req, res) {
 router.put(
   "/update/:id",
   validate([
-    body("user").isString().trim().withMessage("Usuario invalido"),
-    body("name").isString().trim().withMessage("Name invalido"),
-    body("surname").isString().trim().withMessage("Surname invalido"),
+    body("user").optional().isString().trim().withMessage("Usuario invalido"),
+    body("name").optional().isString().trim().withMessage("Name invalido"),
+    body("surname").optional().isString().trim().withMessage("Surname invalido"),
     body("password")
-      .isLength({ min: 5 })
+      .optional()
+      .isLength({ min: 6 })
       .trim()
       .withMessage("Password invalido"),
-    body("phone").isNumeric().trim().withMessage("phone invalido"),
-    body("address").isString().trim().withMessage("address invalido"),
+    body("phone").optional().isNumeric().trim().withMessage("phone invalido"),
+    body("address").optional().isString().trim().withMessage("address invalido"),
     body("role").optional().isString().trim().withMessage("role invalido"),
   ]),
   auth,
