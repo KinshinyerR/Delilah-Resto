@@ -14,18 +14,25 @@ router.get("/all", getAll);
 router.get("/getbyid/:id", getById);
 router.post("/create", create);
 router.put("/update/:id", update);
+// router.put('/updateProduct/:id', updateProduct);
 router.delete("/delete/:id", remove);
 
+/*******************************GET ALL ORDERS************************************/
 function getAll(req, res) {
-  Order.find().populate("userId")
+  Order.find()
+    .populate("userId")
     .then((orders) => res.send(orders))
     .catch((error) => res.status(400).json(error));
-  // res.send("Todos los Ordenes");
 }
+
+/*******************************GET BY ID ORDERS************************************/
 function getById(req, res) {
-  console.log(req.params.id);
-  res.send(`Ordenes: ${req.params.id}`);
+  Order.findById(req.params.id)
+    .then((product) => res.send(product))
+    .catch((error) => res.status(400).json(error));
 }
+
+/*******************************CREATE ORDERS************************************/
 async function create(req, res) {
   const order = new Order(req.body);
   console.log(req.body);
@@ -58,10 +65,20 @@ async function create(req, res) {
     res.status(400).json(error.message);
   }
 }
+
+/*******************************UPDATE ORDERS************************************/
 function update(req, res) {
-  console.log(req.params.id);
-  res.send(`Ordenes actualizado: ${req.params.id}`);
+  Order.findById(req.params.id)
+    .then((order) => {
+      console.log(order.products);
+      Object.assign(order, req.body);
+      return order.save();
+    })
+    .then((orderUpdated) => res.send(orderUpdated))
+    .catch((error) => res.status(400).json(error));
 }
+
+/*******************************DELETE ORDERS************************************/
 function remove(req, res) {
   console.log(req.params.id);
   res.send(`Ordenes eliminado con id: ${req.params.id}`);
