@@ -13,9 +13,9 @@ const router = express.Router();
 router.get("/all", getAll);
 router.get("/getbyid/:id", getById);
 router.post("/create", create);
-router.put("/update/:id", update);
-// router.put("/updateProduct/:id", updateProduct);
+router.post("/updateOrder/:orderId/addProduct/:productId", addProduct);
 router.put("/updateOrder/:orderId/updateProduct/:productId", updateProduct);
+router.put("/update/:id", update);
 router.delete("/delete/:id", remove);
 
 /*******************************GET ALL ORDERS************************************/
@@ -62,6 +62,21 @@ async function create(req, res) {
 
     await order.save();
     res.json(order);
+  } catch (error) {
+    res.status(400).json(error.message);
+  }
+}
+
+/*******************************ADD PRODUCT TO ORDER*****************************/
+async function addProduct(req, res) {
+  const { orderId, productId } = req.params;
+
+  try {
+    const orderDB = await Order.findById(orderId);
+    if (!orderDB) {
+      res.status(400).send(`Orden no encontrada`);
+    }
+    console.log(orderDB);
   } catch (error) {
     res.status(400).json(error.message);
   }
