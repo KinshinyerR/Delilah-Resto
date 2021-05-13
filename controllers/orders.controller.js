@@ -1,5 +1,6 @@
 const express = require("express");
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
+const mongoose = require("mongoose");
 
 const Order = require("../models/order.model");
 const User = require("../models/user.model");
@@ -10,16 +11,51 @@ const verifyRole = require("../middleware/role");
 
 const router = express.Router();
 
-router.get("/all", getAll);
-router.get("/getbyid/:id", getById);
+router.get("/all", auth, verifyRole(["admin"]), getAll);
 
-router.post("/create", create);
+router.get(
+  "/getbyid/:id",
+  validate([
+    param("id")
+      .custom((value) => {
+        const respuesta = mongoose.isValidObjectId(value);
+        if (!respuesta) {
+          throw new Error("Id invalido");
+        }
+        return true;
+      })
+      .exists()
+      .withMessage("Id invalido"),
+  ]),
+  auth,
+  getById
+);
 
-router.put("/updateOrder/:id", update);
+router.post("/create", auth, create);
+
+router.put(
+  "/updateOrder/:id",
+  validate([
+    body("date").optional().isDate().trim().withMessage("date invalido"),
+    body("paymentType")
+      .optional()
+      .isString()
+      .trim()
+      .withMessage("paymentType invalido"),
+    body("paymentValue")
+      .optional()
+      .isNumeric()
+      .trim()
+      .withMessage("paymentValue invalido"),
+    body("status").optional().isString().trim().withMessage("status invalido"),
+  ]),
+  auth,
+  update
+);
 router.put("/updateOrder/:orderId/updateProduct/:productId", updateProduct);
 router.put("/addProduct/:orderId", addProduct);
 
-router.delete("/delete/:orderId", remove);
+router.delete("/delete/:orderId", auth, remove);
 router.delete("/updateOrder/:orderId/deleteProduct/:productId", removeProduct);
 
 /*******************************GET ALL ORDERS************************************/
@@ -40,13 +76,12 @@ function getById(req, res) {
 /*******************************CREATE ORDERS************************************/
 async function create(req, res) {
   const order = new Order(req.body);
-  console.log(req.body);
   const { products } = req.body;
 
   try {
     const userDB = await User.findById(req.body.userId);
     if (!userDB) {
-      res.status(400).send(`Usuario no encontrado`);
+      throw new Error("Usuario no encontrado");
     }
 
     let total = 0;
@@ -81,7 +116,7 @@ async function addProduct(req, res) {
 
     const orderDB = await Order.findById(orderId);
     if (!orderDB) {
-      res.status(400).send(`Orden no encontrada`);
+      throw new Error("Orden no encontrada");
     }
 
     const productDB = await Product.findById(productId);
@@ -129,14 +164,14 @@ async function updateProduct(req, res) {
 
     const orderDB = await Order.findById(orderId);
     if (!orderDB) {
-      res.status(400).send(`Orden no encontrada`);
+      throw new Error("Orden no encontrada");
     }
 
     const productDB = await orderDB.products.find(
       (product) => product.productId == productId
     );
     if (!productDB) {
-      res.status(400).send(`Producto no encontrado`);
+      throw new Error("Producto no encontrado");
     }
 
     productTotal = productDB.productPrice * productDB.quantity;
@@ -178,14 +213,15 @@ async function removeProduct(req, res) {
     let newTotal = 0;
     const orderDB = await Order.findById(orderId);
     if (!orderDB) {
-      res.status(400).send(`Orden no encontrada`);
+      throw new Error("Orden no encontrada");
     }
 
     const indexProductDB = await orderDB.products.findIndex(
       (product) => product.productId == productId
     );
-    if (!indexProductDB) {
-      res.status(400).send(`Producto no encontrado`);
+
+    if (indexProductDB<0) {
+      throw new Error("Pruduct Id no encontrado");
     }
 
     newTotal =
