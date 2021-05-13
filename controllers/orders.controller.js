@@ -12,11 +12,15 @@ const router = express.Router();
 
 router.get("/all", getAll);
 router.get("/getbyid/:id", getById);
+
 router.post("/create", create);
-router.post("/updateOrder/:orderId/addProduct/:productId", addProduct);
+
+router.put("/updateOrder/:id", update);
 router.put("/updateOrder/:orderId/updateProduct/:productId", updateProduct);
-router.put("/update/:id", update);
-router.delete("/delete/:id", remove);
+router.put("/addProduct/:orderId", addProduct);
+
+router.delete("/delete/:orderId", remove);
+router.delete("/updateOrder/:orderId/deleteProduct/:productId", removeProduct);
 
 /*******************************GET ALL ORDERS************************************/
 function getAll(req, res) {
@@ -69,14 +73,34 @@ async function create(req, res) {
 
 /*******************************ADD PRODUCT TO ORDER*****************************/
 async function addProduct(req, res) {
-  const { orderId, productId } = req.params;
+  const { orderId } = req.params;
+  const { productId, quantity } = req.body;
 
   try {
+    let newTotal = 0;
+
     const orderDB = await Order.findById(orderId);
     if (!orderDB) {
       res.status(400).send(`Orden no encontrada`);
     }
-    console.log(orderDB);
+
+    const productDB = await Product.findById(productId);
+    if (!productDB) {
+      throw new Error(`Producto ID no encontrado ${productId}`);
+    }
+
+    orderDB.products.push({
+      productId: productId,
+      quantity: quantity,
+      productPrice: productDB.price,
+      productName: productDB.name,
+    });
+
+    newTotal = quantity * productDB.price + orderDB.paymentValue;
+    orderDB.paymentValue = newTotal;
+
+    await orderDB.save();
+    res.json(orderDB);
   } catch (error) {
     res.status(400).json(error.message);
   }
@@ -133,9 +157,51 @@ async function updateProduct(req, res) {
 }
 
 /*******************************DELETE ORDERS************************************/
-function remove(req, res) {
-  console.log(req.params.id);
-  res.send(`Ordenes eliminado con id: ${req.params.id}`);
+async function remove(req, res) {
+  const { orderId } = req.params;
+  Order.findById(orderId)
+    .then((order) => {
+      return order.remove(orderId);
+    })
+    .then((orderDeleted) => {
+      res.status(200);
+      res.send(`${orderDeleted}Orden eliminada con exito`);
+    })
+    .catch((error) => res.status(400).json(error));
+}
+
+/*******************************DELETE PRODUCT TO ORDERS************************************/
+async function removeProduct(req, res) {
+  const { orderId, productId } = req.params;
+
+  try {
+    let newTotal = 0;
+    const orderDB = await Order.findById(orderId);
+    if (!orderDB) {
+      res.status(400).send(`Orden no encontrada`);
+    }
+
+    const indexProductDB = await orderDB.products.findIndex(
+      (product) => product.productId == productId
+    );
+    if (!indexProductDB) {
+      res.status(400).send(`Producto no encontrado`);
+    }
+
+    newTotal =
+      orderDB.paymentValue -
+      orderDB.products[indexProductDB].productPrice *
+        orderDB.products[indexProductDB].quantity;
+
+    orderDB.paymentValue = newTotal;
+
+    orderDB.products.splice(indexProductDB, 1);
+
+    await orderDB.save();
+    res.json(orderDB);
+  } catch (error) {
+    res.status(400).json(error.message);
+  }
 }
 
 module.exports = router;
