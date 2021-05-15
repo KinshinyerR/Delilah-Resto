@@ -52,11 +52,21 @@ router.put(
   auth,
   update
 );
-router.put("/updateOrder/:orderId/updateProduct/:productId", updateProduct);
-router.put("/addProduct/:orderId", addProduct);
+router.put(
+  "/updateOrder/:orderId/updateProduct/:productId",
+  auth,
+  verifyRole(["admin"]),
+  updateProduct
+);
+router.put("/addProduct/:orderId", auth, verifyRole(["admin"]), addProduct);
 
-router.delete("/delete/:orderId", auth, remove);
-router.delete("/updateOrder/:orderId/deleteProduct/:productId", removeProduct);
+router.delete("/delete/:orderId", auth, verifyRole(["admin"]), remove);
+router.delete(
+  "/updateOrder/:orderId/deleteProduct/:productId",
+  auth,
+  verifyRole(["admin"]),
+  removeProduct
+);
 
 /*******************************GET ALL ORDERS************************************/
 function getAll(req, res) {
@@ -69,7 +79,19 @@ function getAll(req, res) {
 /*******************************GET BY ID ORDERS************************************/
 function getById(req, res) {
   Order.findById(req.params.id)
-    .then((product) => res.send(product))
+    .then((order) => {
+      console.log(req.user._id);
+      console.log(order.userId);
+      console.log(String(req.user._id) !== String(order.userId));
+
+      if (
+        req.user.role === "user" &&
+        String(req.user._id) !== String(order.userId)
+      ) {
+        return res.status(401).send("orden no asociada al usuario");
+      }
+      res.send(order);
+    })
     .catch((error) => res.status(400).json(error));
 }
 
@@ -220,7 +242,7 @@ async function removeProduct(req, res) {
       (product) => product.productId == productId
     );
 
-    if (indexProductDB<0) {
+    if (indexProductDB < 0) {
       throw new Error("Pruduct Id no encontrado");
     }
 
