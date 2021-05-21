@@ -73,8 +73,8 @@ paths:
             examples:
               username:
                 value:
-                  user: username
-                  password: password
+                  user: admin
+                  password: admin123
               email:
                 value:
                   email: example@example.com
@@ -242,6 +242,693 @@ paths:
       responses:
         '200':
           description: User deleted successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string 
+        '401':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                msg: Unauthorized - No token provided
+  ############ PRODUCTS ##############
+  /products/all:
+    get:
+      tags:
+        - products
+      summary: Returns a list of products.
+      description: Get all products from Delilah Restó
+      operationId: all
+      security: 
+        - tokenAuth: []
+      responses:
+        '200':   
+          description: A JSON array of product
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: product name
+                  price: product price
+                  image: https://imagen.com
+                  description: product description
+                - id: 2
+                  name: product name
+                  price: product price
+                  image: https://imagen.com
+                  description: product description
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string 
+  /products/getbyid/{productId}:
+    get:
+      tags:
+        - products
+      summary: Returns a product by ID
+      description: Get a product from Delilah Restó
+      operationId: getbyid
+      security: 
+        - tokenAuth: []
+      parameters:
+        - name: productId
+          in: path
+          description: The ID that needs to be fetched. Only admin role can access to this route
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':   
+          description: A JSON of product
+          content:
+            application/json:
+              example:
+                  - id: 1
+                    name: product name
+                    price: product price
+                    image: https://imagen.com
+                    description: product description
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string 
+  /products/create:
+    post:
+      tags:
+        - products
+      summary: Create a product
+      description: Registration form for product
+      operationId: create
+      security: 
+        - tokenAuth: []
+      requestBody:
+        required: true
+        description: Created product object
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+                  name: product name
+                  price: product price
+                  image: https://imagen.com
+                  description: product description
+      responses:
+        '200':
+          description: Register Successfully
+          content: 
+            application/json:
+              example:
+                - id: 1
+                  name: product name
+                  price: product price
+                  image: https://imagen.com
+                  description: product description
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string
+  /products/update/{productId}:
+    put:
+      tags:
+        - products
+      summary: Updated product
+      description: Update a product from Delilah Restó
+      operationId: update
+      security: 
+        - tokenAuth: []
+      parameters:
+        - name: productId
+          in: path
+          description: productId that need to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Created product object
+        content:
+          application/json:
+            schema:
+              example:
+                name: product name
+                price: product price
+                image: https://imagen.com
+                description: product description
+            examples:
+              all of product:
+                value:
+                  name: product name
+                  price: product price
+                  image: https://imagen.com
+                  description: product description
+              price:
+                value:
+                  price: NewProductPrice
+      responses:
+        '200':   
+            description: A JSON array of product
+            content:
+              application/json:
+                example:
+                  - id: 1
+                    name: product name
+                    price: product price
+                    image: https://imagen.com
+                    description: product description
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string 
+        '401':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                msg: Unauthorized - No token provided
+  /products/delete/{productId}:
+    delete:
+      tags:
+        - products
+      summary: Deleted product
+      description: Delete a product from Delilah Restó
+      operationId: delete
+      security: 
+        - tokenAuth: []
+      parameters:
+        - name: productId
+          in: path
+          description: The productId that needs to be deleted
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':   
+          description: A JSON array of product
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: product name
+                  price: product price
+                  image: https://imagen.com
+                  description: product description
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string 
+        '401':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                msg: Unauthorized - No token provided
+  ############ ORDERS ##############
+  /orders/all:
+    get:
+      tags:
+        - orders
+      summary: Returns a list of orders.
+      description: Get all orders from Delilah Restó
+      operationId: all
+      security: 
+        - tokenAuth: []
+      responses:
+        '200':   
+          description: A JSON array of orders
+          content:
+            application/json:
+              example:
+                - status: Nuevo-Confirmado-...
+                  id: Order ID
+                  date: "AAAA-MM-DD"
+                  paymentType: Efectivo-Tarjeta
+                  userId: {
+                    role: "user-admin",
+                    id: "userId",
+                    user": "user",
+                    name: "user name",
+                    surname: "user surname",
+                    email: "user@example.com",
+                    password: "password",
+                    phone: 123456789,
+                    address: "Medellín",
+                  }
+                  products: [
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  },
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  }]
+                  paymentValue: paymentValue
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string
+  /orders/getbyid/{orderId}:
+    get:
+      tags:
+        - orders
+      summary: Returns a order by ID
+      description: Get a order from Delilah Restó
+      operationId: getbyid
+      security: 
+        - tokenAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          description: The ID that needs to be fetched. Only admin role can access to this route
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':   
+          description: A JSON of order
+          content:
+            application/json:
+              example:
+                - status: Nuevo-Confirmado-...
+                  id: Order ID
+                  date: "AAAA-MM-DD"
+                  paymentType: Efectivo-Tarjeta
+                  userId: userId
+                  products: [
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  },
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  }]
+                  paymentValue: paymentValue
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string
+  /orders/create:
+    post:
+      tags:
+        - orders
+      summary: Create a order
+      description: Registration form for order
+      operationId: create
+      security: 
+        - tokenAuth: []
+      requestBody:
+        required: true
+        description: Created order object
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+                date: "AAAA-MM-DD"
+                paymentType: "Efectivo-Tarjeta"
+                userId: "userId"
+                products: [
+                    {
+                        "productId": "ProductId",
+                        "quantity": quantity(Number),
+                    },
+                    {
+                        "productId": "ProductId",
+                        "quantity": quantity(Number),
+                    }
+                ]
+      responses:
+        '200':   
+          description: A JSON of order
+          content:
+            application/json:
+              example:
+                  status: Nuevo-Confirmado-...
+                  id: Order ID
+                  date: "AAAA-MM-DD"
+                  paymentType: Efectivo-Tarjeta
+                  userId: userId
+                  products: [
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  },
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  }]
+                  paymentValue: paymentValue
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string
+  /orders/updateOrder/{orderId}:
+    put:
+      tags:
+        - orders
+      summary: Updated order
+      description: Update a order from Delilah Restó
+      operationId: update
+      security: 
+        - tokenAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          description: orderId that need to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Created order object
+        content:
+          application/json:
+            schema:
+              example:
+                status: order status
+            examples:
+              status:
+                value:
+                  status: order status
+              paymentValue:
+                value:
+                  paymentValue: paymentValue
+
+      responses:
+        '200':   
+          description: A JSON of order
+          content:
+            application/json:
+              example:
+                  status: Nuevo-Confirmado-...
+                  id: Order ID
+                  date: "AAAA-MM-DD"
+                  paymentType: Efectivo-Tarjeta
+                  userId: userId
+                  products: [
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  },
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  }]
+                  paymentValue: paymentValue
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string 
+        '401':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                msg: Unauthorized - No token provided
+  /orders/updateOrder/{orderId}/updateProduct/{productId}:
+    put:
+      tags:
+        - orders
+      summary: Updated a product of the order
+      description: Update a product of the order from Delilah Restó
+      operationId: update
+      security: 
+        - tokenAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          description: orderId that need to be updated
+          required: true
+          schema:
+            type: string
+        - name: productId
+          in: path
+          description: productId that need to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Created product object
+        content:
+          application/json:
+            schema:
+              example:
+                quantity: order quantity (Number)
+      responses:
+        '200':   
+          description: A JSON of order
+          content:
+            application/json:
+              example:
+                  status: Nuevo-Confirmado-...
+                  id: Order ID
+                  date: "AAAA-MM-DD"
+                  paymentType: Efectivo-Tarjeta
+                  userId: userId
+                  products: [
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  },
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  }]
+                  paymentValue: paymentValue
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string 
+        '401':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                msg: Unauthorized - No token provided
+  /orders/addProduct/{orderId}:
+    put:
+      tags:
+        - orders
+      summary: Add product to order
+      description: Add a product to order from Delilah Restó
+      operationId: update
+      security: 
+        - tokenAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          description: orderId that need to be updated
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Created order object
+        content:
+          application/json:
+            schema:
+              example:
+                productId: "productId"
+                quantity: quantity (Number)
+      responses:
+        '200':   
+          description: A JSON of order
+          content:
+            application/json:
+              example:
+                  status: Nuevo-Confirmado-...
+                  id: Order ID
+                  date: "AAAA-MM-DD"
+                  paymentType: Efectivo-Tarjeta
+                  userId: userId
+                  products: [
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  },
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  }]
+                  paymentValue: paymentValue
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string 
+        '401':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                msg: Unauthorized - No token provided
+  /orders/delete/{orderId}:
+    delete:
+      tags:
+        - orders
+      summary: Deleted order
+      description: Delete a order from Delilah Restó
+      operationId: delete
+      security: 
+        - tokenAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          description: The orderId that needs to be deleted
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':   
+          description: A JSON of order
+          content:
+            application/json:
+              example:
+                  status: Nuevo-Confirmado-...
+                  id: Order ID
+                  date: "AAAA-MM-DD"
+                  paymentType: Efectivo-Tarjeta
+                  userId: userId
+                  products: [
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  },
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  }]
+                  paymentValue: paymentValue
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: string 
+        '401':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                msg: Unauthorized - No token provided
+  /orders/updateOrder/{orderId}/deleteProduct/{productId}:
+    delete:
+      tags:
+        - orders
+      summary: Deleted a product of the order
+      description: Delete a product of the order from Delilah Restó
+      operationId: delete
+      security: 
+        - tokenAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          description: orderId that need to be updated
+          required: true
+          schema:
+            type: string
+        - name: productId
+          in: path
+          description: productId that need to be updated
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':   
+          description: A JSON of order
+          content:
+            application/json:
+              example:
+                  status: Nuevo-Confirmado-...
+                  id: Order ID
+                  date: "AAAA-MM-DD"
+                  paymentType: Efectivo-Tarjeta
+                  userId: userId
+                  products: [
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  },
+                  {
+                    id: "product Id Data base",
+                    productId: "Product Id",
+                    quantity: "quantity product",
+                    productPrice: "productPrice",
+                    productName: "productName",
+                  }]
+                  paymentValue: paymentValue
         '400':
           description: Bad Request
           content:
