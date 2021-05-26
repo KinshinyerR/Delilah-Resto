@@ -47,7 +47,7 @@ npm run dev
 ```bash
 http://localhost:3000/api-docs/ 
 ```
-- To use an admin example you can use these credentials:
+To use an admin example you can use these credentials:
 ```bash
 user: admin
 password: admin123
