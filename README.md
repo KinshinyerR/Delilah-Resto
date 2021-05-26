@@ -10,9 +10,16 @@
     - [JWT](#jwt)
   - [API](#api)
 ## Modules
+- Express
+- swagger-iu-express
+- mongoose
+- morgan
 
 ## Installation
 ### Node
+```bash
+npm install
+```
 ### Data Base
 ### JWT
 
