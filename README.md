@@ -6,7 +6,7 @@
   - [Modules](#modules)
   - [Installation](#installation)
     - [Node](#node)
-    - [Data Base](#data-base)
+    - [DataBase](#database)
     - [JWT](#jwt)
   - [API](#api)
 ## Modules
@@ -20,7 +20,11 @@
 ```bash
 npm install
 ```
-### Data Base
+### DataBase
+1. Add env to the `.env` file
+```
+MONGODB=mongodb+srv://dbadmin:Q1w2e3r4t5@cluster0.wtsge.mongodb.net/DelilahResto?retryWrites=true&w=majority
+```
 ### JWT
 
 
