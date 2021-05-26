@@ -14,7 +14,7 @@
     - [Swagger](#swagger)
 ## Modules
 - Express
-- swagger-iu-express
+- swagger-ui-express
 - mongoose
 - morgan
 
@@ -26,11 +26,8 @@ npm install
 ### DataBase
 1. Add env vars to the `.env` file
 ```
-MONGODB=mongodb+srv://dbadmin:Q1w2e3r4t5@cluster0.wtsge.mongodb.net/DelilahResto?retryWrites=true&w=majority
+MONGODB=mongodb://127.0.0.1:27017/DelilahResto
 ```
-
-2. Enter MongoDB and create a new database with the name of (`DelilahResto`).
-Verify that the database was created correctly
 ### JWT
 Add the secret word to `.env` file
 ```
@@ -47,9 +44,15 @@ npm run dev
 ```bash
 http://localhost:3000/api-docs/ 
 ```
-To use an admin example you can use these credentials:
+To use an admin example, you can sign in with the admin `role`:
 ```bash
-user: admin
-password: admin123
+  "user": "username",
+  "name": "FirstName SecondName",
+  "surname": "LastName",
+  "email": "example@example.com",
+  "password": "password",
+  "phone": 123456789,
+  "address": "Medellin",
+  "role": "admin"
 ```
-To access to restricted endpoint, use the login endpoint first, copy the JWT and click on Authorize option.
+To access to restricted endpoint, use the `login` endpoint first, copy the JWT and click on Authorize option.
