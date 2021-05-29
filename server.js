@@ -29,8 +29,9 @@ mongoose
   })
   .then(() => {
     console.log("Base de datos conectada");
-    app.listen(process.env.PORT || 3000, () => {
-      console.log("servidor iniciado en el puerto 3000");
+    const port = process.env.PORT || 3000
+    app.listen(port, () => {
+      console.log(`servidor iniciado en el puerto ${port}`);
     });
   })
   .catch((error) => console.error(error));
