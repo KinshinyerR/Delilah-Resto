@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const swaggerDocument = YAML.load('./spec.yaml');
+const cors = require('cors')
 
 
 const productsCrontoller = require("./controllers/products.controller");
@@ -12,6 +13,7 @@ const ordersCrontoller = require("./controllers/orders.controller");
 const usersCrontoller = require("./controllers/users.controller");
 
 const app = express();
+app.use(cors())
 app.use(morgan('tiny'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
